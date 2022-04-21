@@ -1,1 +1,2 @@
 # JuegoPenaltis
+Implementación de una aplicación que consiste en un juego de penaltis de dos jugadores. Un jugador controla al portero que se mueve en línea recta horizontalmente y el otro jugador controla el ángulo de tiro del balón y tal vez, con un indicador en forma de barra que aumenta y disminuye, la potencia del disparo. Llevaría la puntuación en un marcador y se irían turnando cada X tiros.
