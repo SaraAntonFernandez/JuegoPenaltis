@@ -32,7 +32,7 @@ class Goalkeeper(Player):
 class Shooter(Player):
     def __init__(self):
         super().__init__()
-        self.posy = SIZE[1] + 50
+        self.posy = SIZE[1]/2 + 50
         
 class Game():
     def __init__(self, manager):
