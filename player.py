@@ -74,7 +74,7 @@ class Game():
     def __str__(self):
         pass
 
-class Cube():
+class Cube(pygame.sprite.Sprite):
     def __init__(self, player):
       super().__init__()
       self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
