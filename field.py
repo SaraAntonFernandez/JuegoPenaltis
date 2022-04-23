@@ -14,12 +14,14 @@ class Player():
         self.posx = SIZE[0]/2
 
     def move(self, dir):
+        print(self.posx)
         sign = -1 if dir == "left" else 1
         self.posx = self.posx + sign*DELTA
         if self.posx < 0:
             self.posx = 0
         elif self.posx > SIZE[0]:
             self.posx = SIZE[0]
+        print(self.posx)
     
     def get_pos(self):
         return [self.posx, self.posy]
@@ -48,7 +50,9 @@ class Game():
 
     def move(self, type, dir):
         self.lock.acquire()
-        self.players[type].move(dir)
+        p = self.players[type]
+        p.move(dir)
+        self.players[type] = p
         self.lock.release()
         
     def stop(self):
@@ -74,9 +78,9 @@ def player(type, conn, game):
             command = ""
             while command != "next":
                 command = conn.recv()
-                if command != "quit":
+                if command == "left" or command == "right":
                     game.move(type, command)
-                else:
+                elif command == "quit":
                     game.stop()
             conn.send(game.get_info())
 
