@@ -85,7 +85,7 @@ class Game():
     def getBall(self):
         return self.ball[0]
         
-    def isRunning(self):
+    def is_running(self):
         return self.running.value == 1
         
     def moveRight(self, player): # Portero
@@ -103,10 +103,10 @@ class Game():
         pass
         #Completar
         
-    def stopGame(self):
+    def stop(self):
         self.running.value = 0
         
-    def getinfo(self):
+    def get_info(self):
         pass
         #Completar
     
@@ -133,15 +133,19 @@ def player(type, conn, game):
         conn.send((type, game.get_info()))
         while game.is_running():
             command = ""
+            message = ""
             while command != "next":
                 command = conn.recv()
                 if command == "left":
-                    game.moveLeft(type)
+                    # game.moveLeft(type)
+                    message += command
                 elif command == "right":
-                    game.moveRight(type)
+                    # game.moveRight(type)
+                    message += command
                 elif command == "quit":
                     game.stop()
-            conn.send(game.get_info())
+            # conn.send(game.get_info())
+            conn.send(message)
     except:
         traceback.print_exc()
         conn.close()
