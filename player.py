@@ -133,7 +133,7 @@ class Display():
         text = font.render(f"{score[SHOOTER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
         
-        self.cube.draw(self.screen)
+        self.cube_sprite.draw(self.screen)
         
         pygame.display.flip()
 
