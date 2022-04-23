@@ -14,7 +14,8 @@ class Player():
         self.posx = SIZE[0]/2
 
     def move(self, dir):
-        self.posx = (-1 if dir == "left" else 1)*DELTA
+        sign = -1 if dir == "left" else 1
+        self.posx = self.posx + sign*DELTA
         if self.posx < 0:
             self.posx = 0
         elif self.posx > SIZE[0]:
