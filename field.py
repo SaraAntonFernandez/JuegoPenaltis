@@ -7,148 +7,82 @@ GOALKEEPER = 0
 SHOOTER = 1
 SIDESSTR = ["goalkeeper", "shooter"]
 SIZE = (700, 525)
-X=0
-Y=1
-DELTA = 30
+DELTA = 10
 
-class Goalkeeper():
+class Player():
     def __init__(self):
-        pass
-        #self.pos = # Completar, va arriba
+        self.posx = SIZE[0]/2
+
+    def move(self, dir):
+        self.posx = (-1 if dir == "left" else 1)*DELTA
+        if self.posx < 0:
+            self.posx = 0
+        elif self.posx > SIZE[0]:
+            self.posx = SIZE[0]
     
-    def getpos(self):
-        return self.pos
-    
-    def moveLeft(self):
-        self.pos[X] -= DELTA
-        if self.pos[X]:
-            pass
-            # Completar, ¿que pasa si se sale del campo?
-        
-    def moveRight(self):
-        self.pos[X] += DELTA
-        if self.pos[X]:
-            pass
-            # Completar, ¿que pasa si se sale del campo?
-        
-    def __str__(self):
-        pass
-        # Completar
+    def get_pos(self):
+        return [self.posx, self.posy]
+
+class Goalkeeper(Player):
+    def __init__(self):
+        super().__init__()
+        self.posy = SIZE[1]/2 - 50
         
 class Shooter():
     def __init__(self):
-        pass
-        # Completar
-        
-    def move(self):  # Mover el balón
-        pass
-        # Completar
-        
-    def shoot(self):
-        pass
-        # Completar
-    
-    def __str__(self):
-        pass
-        # Completar
-    
-class Ball():
-    def __init__(self, velocity):
-        pass
-        #self.pos = # Completar, poner en la línea de tiro
-        self.velocity = velocity
-    
-    def getpos(self):
-        return self.pos
-        
-    def update(self):
-        self.pos[X] += self.velocity[X]
-        self.pos[Y] += self.velocity[Y]
-    
-    # ¿Hace falta alguna función más? Si el balón choca con el portero significa que este le ha parado = No hay función rebote ni colisión
-        
-    def __str__(self):
-        pass
-        # Completar
+        super().__init__()
+        self.posy = SIZE[1] + 50
         
 class Game():
     def __init__(self, manager):
         self.players = manager.list([Goalkeeper(), Shooter()])
-        #self.ball = manager.list( [Ball (#Velocidad#)] )
-        #self.goals = manager.list( [0] )
         self.running = Value('i', 1)
         self.lock = Lock()
         
-    def getPlayer(self, type):
+    def get_player(self, type):
         return self.players[type]
-        
-    def getBall(self):
-        return self.ball[0]
         
     def is_running(self):
         return self.running.value == 1
-        
-    def moveRight(self, player): # Portero
-        #Completar
-        pass
 
-    def moveLeft(self, player):
-        pass
-        #Completar
-        
-    def shoot(self, player): # Lanzador
-        pass
-        #Completar
-    def move(self): # Mover el balón
-        pass
-        #Completar
+    def move(self, type, dir):
+        self.lock.acquire()
+        self.players[type].move(dir)
+        self.lock.release()
         
     def stop(self):
         self.running.value = 0
         
     def get_info(self):
-        pass
-        #Completar
-    
-    def moveBall(self):
-        self.lock.acquire()
-        ball = self.ball[0]
-        ball.update()
-        pos = ball.getpos()
-        # CASOS:
-            # Gol = el balón toca la línea roja
-            # Fuera
-            # Lo para el portero
-        # Al final de la jugada el balón vuelve a la línea de penáltis
-        self.ball[0] = ball
-        self.lock.release()
-    
+        info = {
+            'pos_goalkeeper': self.players[0].get_pos(),
+            'pos_shooter': self.players[1].get_pos(),
+            'score': [0, 1],
+            'is_running': self.is_running()
+        }
+        return info
+
     def __str__(self):
         pass
-        #Completar
         
 def player(type, conn, game):
     try:
-        print(f"starting player {SIDESSTR[type]}:{game.get_info()}")
+        print(f"starting player {SIDESSTR[type]}: {game.get_info()}")
         conn.send((type, game.get_info()))
         while game.is_running():
             command = ""
-            message = ""
             while command != "next":
                 command = conn.recv()
-                if command == "left":
-                    # game.moveLeft(type)
-                    message += command
-                elif command == "right":
-                    # game.moveRight(type)
-                    message += command
-                elif command == "quit":
+                if command != "quit":
+                    game.move(type, command)
+                else:
                     game.stop()
-            # conn.send(game.get_info())
-            conn.send(message)
+            conn.send(game.get_info())
+
     except:
         traceback.print_exc()
         conn.close()
+
     finally:
         print(f"Game ended {game}")
     
