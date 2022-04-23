@@ -20,7 +20,7 @@ SHOOTER = 1
 
 class Player():
     def __init__(self, tipo):
-        self.size = size
+        #self.size = size
         self.pos = None # Una se fija
         self.tipo = tipo
     
@@ -29,11 +29,9 @@ class Ball(): # solo se mueve en linea recta
         self.speed = None
 
 #class Game():
-    
-
 
 class Display():
-    def __init__():
+    def __init__(self):
         self.screen = pygame.display.set_mode(SIZE)
         self.clock = pygame.time.Clock()
         self.background = pygame.image.load('fondo.jpeg')
@@ -73,11 +71,12 @@ def main(ip_address):
                 for ev in events:
                     conn.send(ev)
                     if ev == 'quit':
-                        game.stop()
+                        pass
+                        #game.stop()
                 conn.send("next")
                 
                 message = conn.recv()
-                print(f'Printing message: {message})
+                print(f'Printing message: {message}')
                 
                 #game.update(gameinfo)
                 #display.refresh()
