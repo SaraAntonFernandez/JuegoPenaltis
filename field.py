@@ -29,13 +29,13 @@ class Player():
 class Goalkeeper(Player):
     def __init__(self):
         super().__init__()
-        self.posy = SIZE[1]/2 - 50
+        self.posy = SIZE[1]/2 - 80
         
 class Shooter(Player):
     def __init__(self):
         super().__init__()
-        self.posy = SIZE[1]/2 + 50
-        
+        self.posy = SIZE[1]/2 + 180
+
 class Game():
     def __init__(self, manager):
         self.players = manager.list([Goalkeeper(), Shooter()])
@@ -62,7 +62,7 @@ class Game():
         info = {
             'pos_goalkeeper': self.players[0].get_pos(),
             'pos_shooter': self.players[1].get_pos(),
-            'score': [0, 1],
+            'score': [0, 0],
             'is_running': self.is_running()
         }
         return info

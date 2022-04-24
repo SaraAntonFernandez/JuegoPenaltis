@@ -15,7 +15,7 @@ SIZE = (700, 525)
 
 FPS = 60
 
-PLAYER_COLOR = [GREEN, YELLOW]
+PLAYER_COLOR = [BLUE, YELLOW]
 PLAYER_HEIGHT = 25
 PLAYER_WIDTH = 25
 
@@ -104,7 +104,7 @@ class Display():
                 
         self.screen = pygame.display.set_mode(SIZE)
         self.clock = pygame.time.Clock()
-        self.background = pygame.image.load('background.png')
+        self.background = pygame.image.load('fondo.jpeg')
         pygame.init()
 
     def analyze_events(self):
