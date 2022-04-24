@@ -35,11 +35,24 @@ class Shooter(Player):
     def __init__(self):
         super().__init__()
         self.posy = SIZE[1]/2 + 180
-
+        
+class Ball():
+	def __init__(self, speed):
+		self.speed = speed
+		self.posx = SIZE[0]/2
+		self.posy = SIZE[1]/2 + 180
+	
+	def get_pos(self):
+		return [self.posx, self.posy]
+	
+	def shoot(self):
+		self.posx += 3*self.speed
+		
 class Game():
     def __init__(self, manager):
         self.players = manager.list([Goalkeeper(), Shooter()])
         self.running = Value('i', 1)
+        self.ball = manager.list( [Ball(2)] )
         self.lock = Lock()
         
     def get_player(self, type):
