@@ -24,6 +24,8 @@ class Player():
         elif self.posx > SIZE[0]:
             self.posx = SIZE[0]
     """
+    def move(self):
+        pass
     
     def get_pos(self):
         return [self.posx, self.posy]
@@ -32,7 +34,7 @@ class Goalkeeper(Player):
     def __init__(self):
         super().__init__()
         #he cambiado la posicion
-        self.posy = SIZE[1]/2 + 300
+        self.posy = SIZE[1]/2 - 300
     
     def move(self, dir):
         sign = -1 if dir == "left" else 1
@@ -49,7 +51,7 @@ class Shooter(Player): #es el propio balon en si
         super().__init__()
         self.posy = SIZE[1]/2 - 300
         self.speed = speed #modulo de la velocidad
-        self.angle = 0.0 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
+        self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
         self.velocity = [int(self.speed * math.cos(self.angle)), int(self.speed * math.sin(self.angle))]
     
     def get_angle(self):
