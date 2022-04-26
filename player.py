@@ -132,14 +132,30 @@ class Circle(pygame.sprite.Sprite):
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
         self.ball = ball
+        pygame.draw.circle(self.image, BALL_COLOR, [BALL_SIZE//2, BALL_SIZE//2], BALL_SIZE//2)
+        self.rect = self.image.get_rect()
+        self.update()
+
+    def update(self):
+        pos = self.ball.get_pos()
+        self.rect.centerx, self.rect.centery = pos
+    
+    def __str__(self):
+        return f"S<{self.ball}>"
+
+class Arrow(pygame.sprite.Sprite):
+    def __init__(self, ball):
+        super().__init__()
+        self.image = pygame.Surface([BALL_SIZE, BALL_SIZE])
+        self.image.fill(BLACK)
+        self.image.set_colorkey(BLACK)
+        self.ball = ball
         pygame.draw.circle(self.image, BALL_COLOR, [0,0], BALL_SIZE//2)
         self.rect = self.image.get_rect()
         self.update()
 
     def update(self):
-        #print(self.ball)
         pos = self.ball.get_pos()
-        #print(pos)
         self.rect.centerx, self.rect.centery = pos
     
     def __str__(self):
@@ -150,10 +166,11 @@ class Display():
         self.game = game
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
-        self.all_sprite = pygame.sprite.Group()
+        self.arrow = Arrow(self.game.get_ball())
+        self.all_sprites = pygame.sprite.Group()
         
-        self.all_sprite.add(self.square)
-        self.all_sprite.add(self.circle)
+        self.all_sprites.add(self.square)
+        self.all_sprites.add(self.circle)
         
         self.screen = pygame.display.set_mode(SIZE)
         self.clock = pygame.time.Clock()
@@ -177,7 +194,7 @@ class Display():
         return events
 
     def refresh(self):
-        self.all_sprite.update()
+        self.all_sprites.update()
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 74)
@@ -185,7 +202,7 @@ class Display():
         self.screen.blit(text, (250, 10))
         text = font.render(f"{score[SHOOTER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
-        self.all_sprite.draw(self.screen)
+        self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
     def tick(self):
