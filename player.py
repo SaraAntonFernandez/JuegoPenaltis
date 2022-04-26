@@ -69,7 +69,7 @@ class Game():
         self.running = True
         self.ball_moving = False
 
-    def get_player(self, type):
+    def get_player(self):
         return self.player
     
     def get_ball(self):
@@ -137,6 +137,7 @@ class Circle(pygame.sprite.Sprite):
         self.update()
 
     def update(self):
+        #print(self.ball)
         pos = self.ball.get_pos()
         #print(pos)
         self.rect.centerx, self.rect.centery = pos
@@ -147,8 +148,8 @@ class Circle(pygame.sprite.Sprite):
 class Display():
     def __init__(self, game):
         self.game = game
-        self.square = Square(self.game.get_player(GOALKEEPER))
-        self.circle = Circle(self.game.ball)
+        self.square = Square(self.game.get_player())
+        self.circle = Circle(self.game.get_ball())
         self.all_sprite = pygame.sprite.Group()
         
         self.all_sprite.add(self.square)
@@ -208,7 +209,7 @@ def main(ip_address):
                     conn.send(ev)
                     if ev == 'quit':
                         game.stop()
-                    conn.send("next")
+                conn.send("next")
                 gameinfo = conn.recv()
                 game.update(gameinfo)
                 display.refresh()
