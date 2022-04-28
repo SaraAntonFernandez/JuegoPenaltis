@@ -125,6 +125,16 @@ class Square(pygame.sprite.Sprite):
     def __str__(self):
         return f"S<{self.player}>"
 
+class Line(pygame.sprite.Sprite):
+    def __init__(self, width, height, color, pos):
+	    super().__init__()
+	    self.image = pygame.Surface([width, height])
+	    self.image.fill(BLACK)
+	    self.image.set_colorkey(BLACK)
+	    pygame.draw.rect(self.image, color, [0,0,width, height])
+	    self.rect = self.image.get_rect()
+	    self.rect.centerx, self.rect.centery = pos
+
 class Circle(pygame.sprite.Sprite):
     def __init__(self, ball):
         super().__init__()
@@ -150,7 +160,7 @@ class Arrow(pygame.sprite.Sprite):
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
         self.ball = ball
-        pygame.draw.circle(self.image, BALL_COLOR, [0,0], BALL_SIZE//2)
+        pygame.draw.polygon(self.image, BALL_COLOR, points=[(0,0),(0,1),(1,0)]) # Comprobar
         self.rect = self.image.get_rect()
         self.update()
 
@@ -166,13 +176,18 @@ class Display():
         self.game = game
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
-        self.arrow = Arrow(self.game.get_ball())
+        #self.arrow = Arrow(self.game.get_ball())
+        self.line = Line(300, 10, RED, [SIZE[0]//2, SIZE[1]//2-200])
         self.all_sprites = pygame.sprite.Group()
+        self.fixed_sprites = pygame.sprite.Group()
         
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
+        self.fixed_sprites.add(self.line)
         
         self.screen = pygame.display.set_mode(SIZE)
+        
+        
         self.clock = pygame.time.Clock()
         self.background = pygame.image.load('field_background.jpeg')
         pygame.init()
@@ -203,6 +218,7 @@ class Display():
         text = font.render(f"{score[SHOOTER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
         self.all_sprites.draw(self.screen)
+        self.fixed_sprites.draw(self.screen)
         pygame.display.flip()
 
     def tick(self):

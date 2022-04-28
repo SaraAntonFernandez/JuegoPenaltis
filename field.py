@@ -78,21 +78,7 @@ class Shooter(Player): #es el propio balon en si
     
     def __str__(self):
         pass
-
-#incluida en clase Shooter
-"""
-class Ball():
-    def __init__(self, speed):
-		self.speed = speed
-		self.posx = SIZE[0]/2
-		self.posy = SIZE[1]/2 + 180
-	
-	def get_pos(self):
-		return [self.posx, self.posy]
-	
-	def shoot(self):
-		self.posx += 3*self.speed
-"""
+       
 
 
 class Game():
@@ -101,7 +87,7 @@ class Game():
         self.score = manager.list([0, 0])
         self.running = Value('i', 1)
         self.ball_moving = Value('i', 0)
-        #self.ball = manager.list( [Ball(2)] )
+        
         self.lock = Lock()
         
     def get_player(self, type):
@@ -138,8 +124,12 @@ class Game():
         self.lock.acquire()
         p = self.players[SHOOTER]
         p.update()
+        [posx, posy] = p.get_pos()
+        red_line = self.lines[0]
         #controlar la puntuacion aqui con condicionales
-        self.players[SHOOTER] = p
+        # If collide(p, red_line) -> score[SHOOTER]+=1
+     
+        self.players[SHOOTER] = p  
         self.lock.release()
         
     def get_info(self):
@@ -147,7 +137,7 @@ class Game():
             'pos_goalkeeper': self.players[GOALKEEPER].get_pos(),
             'pos_shooter': self.players[SHOOTER].get_pos(),
             'ball_angle': self.players[SHOOTER].get_angle(),
-            'score': [0, 0],
+            'score': self.get_score(),
             'is_running': self.is_running(),
             'ball_moving': self.is_ball_moving()
         }
