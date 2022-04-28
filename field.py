@@ -124,8 +124,8 @@ class Game():
         self.lock.acquire()
         p = self.players[SHOOTER]
         p.update()
-        [posx, posy] = p.get_pos()
-        red_line = self.lines[0]
+        #[posx, posy] = p.get_pos()
+        #red_line = self.lines[0]
         #controlar la puntuacion aqui con condicionales
         # If collide(p, red_line) -> score[SHOOTER]+=1
      
