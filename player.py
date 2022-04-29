@@ -152,7 +152,7 @@ class Circle(pygame.sprite.Sprite):
     
     def __str__(self):
         return f"S<{self.ball}>"
-
+"""
 class Arrow(pygame.sprite.Sprite):
     def __init__(self, ball):
         super().__init__()
@@ -163,33 +163,37 @@ class Arrow(pygame.sprite.Sprite):
         pygame.draw.polygon(self.image, BALL_COLOR, points=[(0,0),(0,1),(1,0)]) # Comprobar
         self.rect = self.image.get_rect()
         self.update()
-
     def update(self):
         pos = self.ball.get_pos()
         self.rect.centerx, self.rect.centery = pos
     
     def __str__(self):
         return f"S<{self.ball}>"
-
+"""
 class Display():
     def __init__(self, game):
         self.game = game
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
         #self.arrow = Arrow(self.game.get_ball())
-        self.line = Line(300, 10, RED, [SIZE[0]//2, SIZE[1]//2-200])
+        self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 255])   # LINEAS DEL CAMPO
+        self.lineR = Line(10, 1220, WHITE, [0, SIZE[1]])
+        self.lineL = Line(10, 1220, WHITE, [SIZE[0], SIZE[1]])
+        self.lineU = Line(1220, 5, WHITE, [SIZE[0]/2, SIZE[1]/2 - 260])
         self.all_sprites = pygame.sprite.Group()
         self.fixed_sprites = pygame.sprite.Group()
         
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
-        self.fixed_sprites.add(self.line)
-        
+        self.fixed_sprites.add(self.lineR)
+        self.fixed_sprites.add(self.lineL)
+        self.fixed_sprites.add(self.lineU)
+        self.fixed_sprites.add(self.line_red)
         self.screen = pygame.display.set_mode(SIZE)
         
         
         self.clock = pygame.time.Clock()
-        self.background = pygame.image.load('field_background.jpeg')
+        self.background = pygame.image.load('field_background2.jpeg')
         pygame.init()
 
     def analyze_events(self, type):

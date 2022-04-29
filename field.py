@@ -34,7 +34,7 @@ class Goalkeeper(Player):
     def __init__(self):
         super().__init__()
         #he cambiado la posicion
-        self.posy = SIZE[1]/2 - 180
+        self.posy = SIZE[1]/2 - 230
     
     def move(self, dir):
         sign = -1 if dir == "left" else 1
@@ -49,7 +49,7 @@ class Shooter(Player): #es el propio balon en si
     #lo dejare para despues
     def __init__(self, speed):
         super().__init__()
-        self.posy = SIZE[1]/2 + 260
+        self.posy = SIZE[1]/2 + 250
         self.speed = speed #modulo de la velocidad
         self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
         self.velocity = [int(self.speed * math.cos(self.angle)), -int(self.speed * math.sin(self.angle))]
@@ -124,8 +124,6 @@ class Game():
         self.lock.acquire()
         p = self.players[SHOOTER]
         p.update()
-        [posx, posy] = p.get_pos()
-        red_line = self.lines[0]
         #controlar la puntuacion aqui con condicionales
         # If collide(p, red_line) -> score[SHOOTER]+=1
      
