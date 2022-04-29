@@ -176,10 +176,11 @@ class Display():
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
         #self.arrow = Arrow(self.game.get_ball())
-        self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 255])   # LINEAS DEL CAMPO
+        self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])   # LINEAS DEL CAMPO
         self.lineR = Line(10, 1220, WHITE, [0, SIZE[1]])
         self.lineL = Line(10, 1220, WHITE, [SIZE[0], SIZE[1]])
-        self.lineU = Line(1220, 5, WHITE, [SIZE[0]/2, SIZE[1]/2 - 260])
+        self.lineUR = Line(300, 5, WHITE, [0, SIZE[1]/2 - 260])
+        self.lineUL = Line(300, 5, WHITE, [SIZE[0], SIZE[1]/2 - 260])
         self.all_sprites = pygame.sprite.Group()
         self.fixed_sprites = pygame.sprite.Group()
         
@@ -187,7 +188,8 @@ class Display():
         self.all_sprites.add(self.circle)
         self.fixed_sprites.add(self.lineR)
         self.fixed_sprites.add(self.lineL)
-        self.fixed_sprites.add(self.lineU)
+        self.fixed_sprites.add(self.lineUR)
+        self.fixed_sprites.add(self.lineUL)
         self.fixed_sprites.add(self.line_red)
         self.screen = pygame.display.set_mode(SIZE)
         
