@@ -66,6 +66,7 @@ class Game():
         self.score = [0, 0]
         self.running = True
         self.ball_moving = False
+        self.round_state = True
 
     def get_player(self):
         return self.player
@@ -97,6 +98,7 @@ class Game():
         self.set_score(gameinfo['score'])
         self.running = gameinfo['is_running']
         self.ball_moving = gameinfo['ball_moving']
+        self.round_state = gameinfo['round_state']
 
     def stop(self):
         self.running = False
@@ -217,11 +219,11 @@ class Display():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     events.append("quit")
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT and self.game.round_state:
                     events.append("left")
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and self.game.round_state:
                     events.append("right")
-                elif event.key == pygame.K_SPACE and type == SHOOTER and not self.game.ball_moving:
+                elif event.key == pygame.K_SPACE and type == SHOOTER and not self.game.ball_moving and self.game.round_state:
                     self.arrow.kill()       # Hace desaparecer la flecha al disparar
                     events.append("shoot")
             elif event.type == pygame.QUIT:
@@ -232,10 +234,6 @@ class Display():
             events.append("out")
         elif self.collision(type, [self.line_red]):
             events.append("goal")
-        """
-        elif self.collision(type, [self.lineL, self.lineR]):
-            events.append("bounce")
-        """
         return events
 
     def refresh(self):
@@ -260,7 +258,7 @@ class Display():
 
 def main(ip_address):
     try:
-        with Client((ip_address, 11235), authkey=b'secret password') as conn:
+        with Client((ip_address, 11239), authkey=b'secret password') as conn:
             game = Game()
             type, gameinfo = conn.recv()
             print(f"I am playing {TYPE[type]}")
