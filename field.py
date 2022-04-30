@@ -16,15 +16,7 @@ class Player():
     def __init__(self):
         self.posx = SIZE[0]/2
     #lo paso a la clase hijo, voy a hacer uno diferente para shooter
-    """ 
-    def move(self, dir):
-        sign = -1 if dir == "left" else 1
-        self.posx = self.posx + sign*DELTA
-        if self.posx < 0:
-            self.posx = 0
-        elif self.posx > SIZE[0]:
-            self.posx = SIZE[0]
-    """
+
     def move(self):
         pass
     
@@ -39,7 +31,7 @@ class Goalkeeper(Player):
     
     def move(self, dir):
         sign = -1 if dir == "left" else 1
-        self.posx = self.posx - sign*DELTA
+        self.posx = self.posx + sign*DELTA
         if self.posx < 0:
             self.posx = 0
         elif self.posx > SIZE[0]:
@@ -60,11 +52,11 @@ class Shooter(Player): #es el propio balon en si
         
     def move(self, dir): #nombre anterior: adjust_angle, se pasa a llamar move, por reutilizar la funcion en game
         sign = -1 if dir == "left" else 1
-        self.angle = self.angle + sign*GAMMA
-        if self.angle < -math.pi:
-            self.angle = -math.pi
-        elif self.angle > math.pi:
-            self.angle = math.pi
+        self.angle = self.angle - sign*GAMMA
+        if self.angle < math.pi/8:          # Angulo minimo
+            self.angle = math.pi/8
+        elif self.angle > 7*math.pi/8:      # Angulo maximo
+            self.angle = 7*math.pi/8
     
         #actualiza la velocidad(vector) lo hago asi para evitar calcular tantos cosenos y senos
     def update_velocity(self):
@@ -80,8 +72,6 @@ class Shooter(Player): #es el propio balon en si
     def __str__(self):
         pass
        
-
-
 class Game():
     def __init__(self, manager):
         self.players = manager.list([Goalkeeper(), Shooter(speed=2)])
