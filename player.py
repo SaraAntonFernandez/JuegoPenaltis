@@ -197,6 +197,13 @@ class Display():
         self.clock = pygame.time.Clock()
         self.background = pygame.image.load('field_background2.jpeg')
         pygame.init()
+        
+    def collision(self, type, object):
+        r = type == SHOOTER and self.game.ball_moving
+        p = False
+        for k in object:
+            p = p or pygame.sprite.collide_rect(self.circle, k)
+        return r and p
 
     def analyze_events(self, type):
         events = []
@@ -212,6 +219,16 @@ class Display():
                     events.append("shoot")
             elif event.type == pygame.QUIT:
                 events.append("quit")
+        if self.collision(type, [self.square]):
+            events.append("catch")
+        elif self.collision(type, [self.lineUL, self.lineUR]):
+            events.append("out")
+        elif self.collision(type, [self.line_red]):
+            events.append("goal")
+        """
+        elif self.collision(type, [self.lineL, self.lineR]):
+            events.append("bounce")
+        """
         return events
 
     def refresh(self):
