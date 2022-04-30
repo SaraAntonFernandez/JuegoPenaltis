@@ -188,6 +188,7 @@ class Display():
         self.lineUL = Line(300, 5, WHITE, [SIZE[0], SIZE[1]/2 - 260])
         self.all_sprites = pygame.sprite.Group()
         self.fixed_sprites = pygame.sprite.Group()
+        self.arrow_group = pygame.sprite.Group()
         
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
@@ -221,7 +222,7 @@ class Display():
         if pressed[pygame.K_RIGHT] and self.game.round_state:
             events.append("right")
         if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving and self.game.round_state:
-            self.arrow.kill()       # Hace desaparecer la flecha al disparar
+            # self.arrow.kill()       # Hace desaparecer la flecha al disparar
             events.append("shoot")
 
         for event in pygame.event.get():
@@ -238,6 +239,7 @@ class Display():
 
     def refresh(self):
         self.all_sprites.update()
+        self.arrow.update()
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 74)
@@ -246,6 +248,10 @@ class Display():
         text = font.render(f"{score[SHOOTER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
         self.all_sprites.draw(self.screen)
+
+        if not self.game.ball_moving:
+            self.arrow_group.draw(self.screen)
+
         self.fixed_sprites.draw(self.screen)
         pygame.display.flip()
 
@@ -254,9 +260,8 @@ class Display():
 
     def add_arrow(self):
         if self.type == SHOOTER:     # Se muestra la flecha unicamente si el jugador es el que dispara
-            print("hola")
             self.arrow = Arrow(self.game.get_ball())
-            self.all_sprites.add(self.arrow)
+            self.arrow_group.add(self.arrow)
 
     @staticmethod
     def quit():
@@ -278,9 +283,6 @@ def main(ip_address):
                         game.stop()
                 conn.send("next")
                 gameinfo = conn.recv()
-                print(game.round_state)
-                if not game.round_state:
-                    display.add_arrow()
                 game.update(gameinfo)
                 display.refresh()
                 display.tick()

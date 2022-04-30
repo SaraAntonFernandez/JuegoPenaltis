@@ -209,8 +209,7 @@ def player(type, conn, game):
 
             if not game.get_round_state():
                 game.reset()
-                conn.send(game.get_info())
-                
+
     except:
         traceback.print_exc()
         conn.close()
