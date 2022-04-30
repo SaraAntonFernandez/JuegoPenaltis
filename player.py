@@ -248,8 +248,8 @@ class Display():
         self.screen.blit(text, (SIZE[X]-250, 10))
         self.all_sprites.draw(self.screen)
 
-        if self.type == SHOOTER and not self.game.ball_moving:
-            self.arrow.update()
+        if not self.game.ball_moving:
+            self.arrow_group.update()
             self.arrow_group.draw(self.screen)
 
         self.fixed_sprites.draw(self.screen)
