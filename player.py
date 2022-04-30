@@ -174,11 +174,10 @@ class Arrow(pygame.sprite.Sprite):
         return f"S<{self.ball}>"
 
 class Display():
-    def __init__(self, game):
+    def __init__(self, game, type):
         self.game = game
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
-        self.arrow = Arrow(self.game.get_ball())
         self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])   # LINEAS DEL CAMPO
         self.lineR = Line(10, 1220, WHITE, [0, SIZE[1]])
         self.lineL = Line(10, 1220, WHITE, [SIZE[0], SIZE[1]])
@@ -189,12 +188,16 @@ class Display():
         
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
-        self.all_sprites.add(self.arrow)
         self.fixed_sprites.add(self.lineR)
         self.fixed_sprites.add(self.lineL)
         self.fixed_sprites.add(self.lineUR)
         self.fixed_sprites.add(self.lineUL)
         self.fixed_sprites.add(self.line_red)
+
+        if type == SHOOTER:     # Se muestra la flecha unicamente si el jugador es el que dispara
+            self.arrow = Arrow(self.game.get_ball())
+            self.all_sprites.add(self.arrow)
+
         self.screen = pygame.display.set_mode(SIZE)
         
         self.clock = pygame.time.Clock()
@@ -219,6 +222,7 @@ class Display():
                 elif event.key == pygame.K_RIGHT:
                     events.append("right")
                 elif event.key == pygame.K_SPACE and type == SHOOTER and not self.game.ball_moving:
+                    self.arrow.kill()       # Hace desaparecer la flecha al disparar
                     events.append("shoot")
             elif event.type == pygame.QUIT:
                 events.append("quit")
@@ -261,7 +265,7 @@ def main(ip_address):
             type, gameinfo = conn.recv()
             print(f"I am playing {TYPE[type]}")
             game.update(gameinfo)
-            display = Display(game)
+            display = Display(game, type)
             while game.running:
                 events = display.analyze_events(type)
                 for ev in events:
