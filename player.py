@@ -66,6 +66,7 @@ class Game():
         self.score = [0, 0]
         self.running = True
         self.ball_moving = False
+        self.round_state = True
 
     def get_player(self):
         return self.player
@@ -97,6 +98,7 @@ class Game():
         self.set_score(gameinfo['score'])
         self.running = gameinfo['is_running']
         self.ball_moving = gameinfo['ball_moving']
+        self.round_state = gameinfo['round_state']
 
     def stop(self):
         self.running = False
@@ -176,6 +178,7 @@ class Arrow(pygame.sprite.Sprite):
 class Display():
     def __init__(self, game, type):
         self.game = game
+        self.type = type
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
         self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])   # LINEAS DEL CAMPO
@@ -194,9 +197,7 @@ class Display():
         self.fixed_sprites.add(self.lineUL)
         self.fixed_sprites.add(self.line_red)
 
-        if type == SHOOTER:     # Se muestra la flecha unicamente si el jugador es el que dispara
-            self.arrow = Arrow(self.game.get_ball())
-            self.all_sprites.add(self.arrow)
+        self.add_arrow()
 
         self.screen = pygame.display.set_mode(SIZE)
         
@@ -215,14 +216,14 @@ class Display():
         events = []
 
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_LEFT]:
+        if pressed[pygame.K_LEFT] and self.game.round_state:
             events.append("left")
-        if pressed[pygame.K_RIGHT]:
+        if pressed[pygame.K_RIGHT] and self.game.round_state:
             events.append("right")
-        if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving:
+        if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving and self.game.round_state:
             self.arrow.kill()       # Hace desaparecer la flecha al disparar
             events.append("shoot")
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 events.append("quit")
@@ -233,10 +234,6 @@ class Display():
             events.append("out")
         elif self.collision(type, [self.line_red]):
             events.append("goal")
-        """
-        elif self.collision(type, [self.lineL, self.lineR]):
-            events.append("bounce")
-        """
         return events
 
     def refresh(self):
@@ -255,13 +252,19 @@ class Display():
     def tick(self):
         self.clock.tick(FPS)
 
+    def add_arrow(self):
+        if self.type == SHOOTER:     # Se muestra la flecha unicamente si el jugador es el que dispara
+            print("hola")
+            self.arrow = Arrow(self.game.get_ball())
+            self.all_sprites.add(self.arrow)
+
     @staticmethod
     def quit():
         pygame.quit()
 
 def main(ip_address):
     try:
-        with Client((ip_address, 11235), authkey=b'secret password') as conn:
+        with Client((ip_address, 11239), authkey=b'secret password') as conn:
             game = Game()
             type, gameinfo = conn.recv()
             print(f"I am playing {TYPE[type]}")
@@ -275,6 +278,9 @@ def main(ip_address):
                         game.stop()
                 conn.send("next")
                 gameinfo = conn.recv()
+                print(game.round_state)
+                if not game.round_state:
+                    display.add_arrow()
                 game.update(gameinfo)
                 display.refresh()
                 display.tick()

@@ -3,6 +3,7 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 import math
+from time import sleep
 
 GOALKEEPER = 0
 SHOOTER = 1
@@ -12,6 +13,7 @@ SIZE = (700, 700)  #la imagen es de 700x700
 
 ALPHA = 1/60    # Variacion del angulo
 DELTA = 5       # Variacion del paso del portero
+SPEED = 3
 
 class Player():
     def __init__(self):
@@ -37,14 +39,18 @@ class Goalkeeper(Player):
             self.posx = 0
         elif self.posx > SIZE[0]:
             self.posx = SIZE[0]
-        
+    
+    def reset(self):
+        self.posx = SIZE[0]/2
+        self.posy = SIZE[1]/2 - 230
+
 class Shooter(Player): #es el propio balon en si
     #NOTA: no se si hacer que rebote o no, pues es un poco irrelevante
     #lo dejare para despues
-    def __init__(self, speed):
+    def __init__(self):
         super().__init__()
         self.posy = SIZE[1]/2 + 250
-        self.speed = speed #modulo de la velocidad
+        self.speed = SPEED #modulo de la velocidad
         self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
     
@@ -70,16 +76,24 @@ class Shooter(Player): #es el propio balon en si
     def bounce(self, AXIS):
         self.velocity[AXIS] = -self.velocity[AXIS]
     
+    def reset(self):
+        self.posx = SIZE[0]/2
+        self.posy = SIZE[1]/2 + 250
+        self.speed = SPEED #modulo de la velocidad
+        self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
+        self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
+    
     def __str__(self):
         pass
        
 class Game():
     def __init__(self, manager):
-        self.players = manager.list([Goalkeeper(), Shooter(speed=2)])
+        self.manager = manager
+        self.players = manager.list([Goalkeeper(), Shooter()])
         self.score = manager.list([0, 0])
         self.running = Value('i', 1)
         self.ball_moving = Value('i', 0)
-        
+        self.round_state = Value('i', 1)
         self.lock = Lock()
         
     def get_player(self, type):
@@ -95,6 +109,14 @@ class Game():
         
     def is_running(self):
         return self.running.value == 1
+    
+    def get_round_state(self):
+        return self.round_state.value == 1
+    
+    def end_round(self):
+        self.lock.acquire()
+        self.round_state.value = 0
+        self.lock.release()
     
     def is_ball_moving(self):
         return self.ball_moving.value == 1
@@ -132,6 +154,17 @@ class Game():
         self.players[SHOOTER] = p  
         self.lock.release()
     
+    def reset(self):
+        self.lock.acquire()
+        self.round_state.value = 1
+        p1 = self.players[GOALKEEPER]
+        p2 = self.players[SHOOTER]
+        p1.reset()
+        p2.reset()
+        self.players[GOALKEEPER] = p1
+        self.players[SHOOTER] = p2
+        self.lock.release()
+    
         
     def get_info(self):
         info = {
@@ -140,7 +173,8 @@ class Game():
             'ball_angle': self.players[SHOOTER].get_angle(),
             'score': self.get_score(),
             'is_running': self.is_running(),
-            'ball_moving': self.is_ball_moving()
+            'ball_moving': self.is_ball_moving(),
+            'round_state': self.get_round_state()
         }
         return info
 
@@ -160,9 +194,11 @@ def player(type, conn, game):
                 elif command == "shoot": #comando nuevo
                     game.shoot_ball()
                 elif command == "goal":
+                    game.end_round()
                     game.stop_ball()
                     game.set_score(SHOOTER)
                 elif command == "out" or command == "catch":
+                    game.end_round()
                     game.stop_ball()
                     game.set_score(GOALKEEPER)
                 elif command == "quit":
@@ -171,6 +207,10 @@ def player(type, conn, game):
                 game.move_ball()
             conn.send(game.get_info())
 
+            if not game.get_round_state():
+                game.reset()
+                conn.send(game.get_info())
+                
     except:
         traceback.print_exc()
         conn.close()
@@ -181,7 +221,7 @@ def player(type, conn, game):
 def main(ip_address):
     manager = Manager()
     try:
-        with Listener((ip_address, 11235), authkey=b'secret password') as listener:
+        with Listener((ip_address, 11239), authkey=b'secret password') as listener:
             numPlayers = 0
             players = [None, None]
             game = Game(manager)
