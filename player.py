@@ -239,7 +239,6 @@ class Display():
 
     def refresh(self):
         self.all_sprites.update()
-        self.arrow.update()
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
         font = pygame.font.Font(None, 74)
@@ -249,7 +248,8 @@ class Display():
         self.screen.blit(text, (SIZE[X]-250, 10))
         self.all_sprites.draw(self.screen)
 
-        if not self.game.ball_moving:
+        if self.type == SHOOTER and not self.game.ball_moving:
+            self.arrow.update()
             self.arrow_group.draw(self.screen)
 
         self.fixed_sprites.draw(self.screen)
