@@ -213,19 +213,20 @@ class Display():
 
     def analyze_events(self, type):
         events = []
+
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_LEFT]:
+            events.append("left")
+        if pressed[pygame.K_RIGHT]:
+            events.append("right")
+        if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving:
+            self.arrow.kill()       # Hace desaparecer la flecha al disparar
+            events.append("shoot")
+        
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    events.append("quit")
-                elif event.key == pygame.K_LEFT:
-                    events.append("left")
-                elif event.key == pygame.K_RIGHT:
-                    events.append("right")
-                elif event.key == pygame.K_SPACE and type == SHOOTER and not self.game.ball_moving:
-                    self.arrow.kill()       # Hace desaparecer la flecha al disparar
-                    events.append("shoot")
-            elif event.type == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 events.append("quit")
+
         if self.collision(type, [self.square]):
             events.append("catch")
         elif self.collision(type, [self.lineUL, self.lineUR]):

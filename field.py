@@ -9,8 +9,9 @@ SHOOTER = 1
 BALL_SIZE = 20
 SIDESSTR = ["goalkeeper", "shooter"]
 SIZE = (700, 700)  #la imagen es de 700x700
-GAMMA = 2*math.pi/30 #variacion del angulo
-DELTA = 10
+
+ALPHA = 1/60    # Variacion del angulo
+DELTA = 5       # Variacion del paso del portero
 
 class Player():
     def __init__(self):
@@ -52,7 +53,7 @@ class Shooter(Player): #es el propio balon en si
         
     def move(self, dir): #nombre anterior: adjust_angle, se pasa a llamar move, por reutilizar la funcion en game
         sign = -1 if dir == "left" else 1
-        self.angle = self.angle - sign*GAMMA
+        self.angle = self.angle - sign*ALPHA
         if self.angle < math.pi/8:          # Angulo minimo
             self.angle = math.pi/8
         elif self.angle > 7*math.pi/8:      # Angulo maximo
