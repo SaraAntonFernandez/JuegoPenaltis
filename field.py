@@ -6,6 +6,7 @@ import math
 
 GOALKEEPER = 0
 SHOOTER = 1
+BALL_SIZE = 20
 SIDESSTR = ["goalkeeper", "shooter"]
 SIZE = (700, 700)  #la imagen es de 700x700
 GAMMA = 2*math.pi/30 #variacion del angulo
@@ -95,12 +96,22 @@ class Game():
     
     def get_score(self):
         return list(self.score)
+    
+    def set_score(self, type):
+        self.lock.acquire()
+        self.score[type] += 1
+        self.lock.release()
         
     def is_running(self):
         return self.running.value == 1
     
     def is_ball_moving(self):
         return self.ball_moving.value == 1
+    
+    def stop_ball(self):
+        self.lock.acquire()
+        self.ball_moving.value = 0
+        self.lock.release()
 
     def move(self, type, dir):
         self.lock.acquire()
@@ -124,13 +135,12 @@ class Game():
         self.lock.acquire()
         p = self.players[SHOOTER]
         p.update()
-        #[posx, posy] = p.get_pos()
-        #red_line = self.lines[0]
-        #controlar la puntuacion aqui con condicionales
-        # If collide(p, red_line) -> score[SHOOTER]+=1
-     
+        pos = p.get_pos()
+        if pos[0] < BALL_SIZE//2 or pos[0] > SIZE[0] - BALL_SIZE//2:
+            p.bounce(0)
         self.players[SHOOTER] = p  
         self.lock.release()
+    
         
     def get_info(self):
         info = {
@@ -158,6 +168,12 @@ def player(type, conn, game):
                     game.move(type, command)
                 elif command == "shoot": #comando nuevo
                     game.shoot_ball()
+                elif command == "goal":
+                    game.stop_ball()
+                    game.set_score(SHOOTER)
+                elif command == "out" or command == "catch":
+                    game.stop_ball()
+                    game.set_score(GOALKEEPER)
                 elif command == "quit":
                     game.stop()
             if game.is_ball_moving(): #mueve la pelota si se ha disparado
