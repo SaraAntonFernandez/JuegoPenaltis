@@ -48,9 +48,7 @@ class Player():
 class Ball(Player): # solo se mueve en linea recta
     def __init__(self):
         super().__init__(SHOOTER)
-        #self.speed = None
         self.angle = None
-        #self.pos = [None, None] ya lo hereda de Player(class)
 
     def set_angle(self, angle):
         self.angle = angle
@@ -127,13 +125,13 @@ class Square(pygame.sprite.Sprite):
 
 class Line(pygame.sprite.Sprite):
     def __init__(self, width, height, color, pos):
-	    super().__init__()
-	    self.image = pygame.Surface([width, height])
-	    self.image.fill(BLACK)
-	    self.image.set_colorkey(BLACK)
-	    pygame.draw.rect(self.image, color, [0,0,width, height])
-	    self.rect = self.image.get_rect()
-	    self.rect.centerx, self.rect.centery = pos
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(BLACK)
+        self.image.set_colorkey(BLACK)
+        pygame.draw.rect(self.image, color, [0, 0, width, height])
+        self.rect = self.image.get_rect()
+        self.rect.centerx, self.rect.centery = pos
 
 class Circle(pygame.sprite.Sprite):
     def __init__(self, ball):
@@ -152,30 +150,35 @@ class Circle(pygame.sprite.Sprite):
     
     def __str__(self):
         return f"S<{self.ball}>"
-"""
+
 class Arrow(pygame.sprite.Sprite):
     def __init__(self, ball):
         super().__init__()
-        self.image = pygame.Surface([BALL_SIZE, BALL_SIZE])
+        self.image = pygame.Surface([BALL_SIZE, 3*BALL_SIZE])
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
         self.ball = ball
-        pygame.draw.polygon(self.image, BALL_COLOR, points=[(0,0),(0,1),(1,0)]) # Comprobar
+        pygame.draw.polygon(self.image, RED, points = [(BALL_SIZE//2, 0), (BALL_SIZE//4, BALL_SIZE//2), (3*BALL_SIZE//4, BALL_SIZE//2)]) # Comprobar
+        self.orig_image = self.image
         self.rect = self.image.get_rect()
+        self.rect.centerx, self.rect.centery = self.ball.get_pos()
         self.update()
+
     def update(self):
-        pos = self.ball.get_pos()
-        self.rect.centerx, self.rect.centery = pos
+        # angle = self.angle - self.ball.get_angle()
+        angle = self.ball.get_angle()
+        self.image = pygame.transform.rotate(self.orig_image, 180*angle/math.pi - 90)
+        self.rect = self.image.get_rect(center=self.ball.get_pos())
     
     def __str__(self):
         return f"S<{self.ball}>"
-"""
+
 class Display():
     def __init__(self, game):
         self.game = game
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
-        #self.arrow = Arrow(self.game.get_ball())
+        self.arrow = Arrow(self.game.get_ball())
         self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])   # LINEAS DEL CAMPO
         self.lineR = Line(10, 1220, WHITE, [0, SIZE[1]])
         self.lineL = Line(10, 1220, WHITE, [SIZE[0], SIZE[1]])
@@ -186,13 +189,13 @@ class Display():
         
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
+        self.all_sprites.add(self.arrow)
         self.fixed_sprites.add(self.lineR)
         self.fixed_sprites.add(self.lineL)
         self.fixed_sprites.add(self.lineUR)
         self.fixed_sprites.add(self.lineUL)
         self.fixed_sprites.add(self.line_red)
         self.screen = pygame.display.set_mode(SIZE)
-        
         
         self.clock = pygame.time.Clock()
         self.background = pygame.image.load('field_background2.jpeg')
