@@ -3,17 +3,16 @@ from multiprocessing import Process, Manager, Value, Lock
 import traceback
 import sys
 import math
-from time import sleep
 
 GOALKEEPER = 0
 SHOOTER = 1
-BALL_SIZE = 20
+BALL_SIZE = 40
 SIDESSTR = ["goalkeeper", "shooter"]
-SIZE = (700, 700)
+SIZE = (1000, 1000)
 
-ALPHA = 1/60
+ALPHA = 1/30
 DELTA = 5
-SPEED = 3
+SPEED = 6
 
 class Player():
     def __init__(self):
@@ -28,7 +27,7 @@ class Player():
 class Goalkeeper(Player):
     def __init__(self):
         super().__init__()
-        self.posy = SIZE[1]/2 - 230
+        self.posy = SIZE[1]/5 + 50
     
     def move(self, dir):
         sign = -1 if dir == "left" else 1
@@ -40,12 +39,12 @@ class Goalkeeper(Player):
     
     def reset(self):
         self.posx = SIZE[0]/2
-        self.posy = SIZE[1]/2 - 230
+        self.posy = SIZE[1]/5 + 50
 
 class Shooter(Player):
     def __init__(self):
         super().__init__()
-        self.posy = SIZE[1]/2 + 250
+        self.posy = 9*SIZE[1]/10
         self.speed = SPEED #modulo de la velocidad
         self.angle = math.pi/2 #angulo del disparo
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
@@ -73,7 +72,7 @@ class Shooter(Player):
     
     def reset(self):
         self.posx = SIZE[0]/2
-        self.posy = SIZE[1]/2 + 250
+        self.posy = 9*SIZE[1]/10
         self.speed = SPEED
         self.angle = math.pi/2
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
