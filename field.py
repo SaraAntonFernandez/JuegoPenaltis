@@ -9,16 +9,15 @@ GOALKEEPER = 0
 SHOOTER = 1
 BALL_SIZE = 20
 SIDESSTR = ["goalkeeper", "shooter"]
-SIZE = (700, 700)  #la imagen es de 700x700
+SIZE = (700, 700)
 
-ALPHA = 1/60    # Variacion del angulo
-DELTA = 5       # Variacion del paso del portero
+ALPHA = 1/60
+DELTA = 5
 SPEED = 3
 
 class Player():
     def __init__(self):
         self.posx = SIZE[0]/2
-    #lo paso a la clase hijo, voy a hacer uno diferente para shooter
 
     def move(self):
         pass
@@ -29,7 +28,6 @@ class Player():
 class Goalkeeper(Player):
     def __init__(self):
         super().__init__()
-        #he cambiado la posicion
         self.posy = SIZE[1]/2 - 230
     
     def move(self, dir):
@@ -44,20 +42,18 @@ class Goalkeeper(Player):
         self.posx = SIZE[0]/2
         self.posy = SIZE[1]/2 - 230
 
-class Shooter(Player): #es el propio balon en si
-    #NOTA: no se si hacer que rebote o no, pues es un poco irrelevante
-    #lo dejare para despues
+class Shooter(Player):
     def __init__(self):
         super().__init__()
         self.posy = SIZE[1]/2 + 250
         self.speed = SPEED #modulo de la velocidad
-        self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
+        self.angle = math.pi/2 #angulo del disparo
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
     
     def get_angle(self):
         return self.angle
         
-    def move(self, dir): #nombre anterior: adjust_angle, se pasa a llamar move, por reutilizar la funcion en game
+    def move(self, dir):
         sign = -1 if dir == "left" else 1
         self.angle = self.angle - sign*ALPHA
         if self.angle < math.pi/8:          # Angulo minimo
@@ -65,11 +61,10 @@ class Shooter(Player): #es el propio balon en si
         elif self.angle > 7*math.pi/8:      # Angulo maximo
             self.angle = 7*math.pi/8
     
-        #actualiza la velocidad(vector) lo hago asi para evitar calcular tantos cosenos y senos
     def update_velocity(self):
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
     
-    def update(self): #actualiza la posicion de la pelota
+    def update(self):
         self.posx += self.velocity[0]
         self.posy += self.velocity[1]
 
@@ -79,8 +74,8 @@ class Shooter(Player): #es el propio balon en si
     def reset(self):
         self.posx = SIZE[0]/2
         self.posy = SIZE[1]/2 + 250
-        self.speed = SPEED #modulo de la velocidad
-        self.angle = math.pi/2 #angulo del disparo NOTA: tipo float, pero creo que asi escrito esta muy feo
+        self.speed = SPEED
+        self.angle = math.pi/2
         self.velocity = [self.speed * math.cos(self.angle), -self.speed * math.sin(self.angle)]
     
     def __str__(self):
@@ -173,8 +168,7 @@ class Game():
             'ball_angle': self.players[SHOOTER].get_angle(),
             'score': self.get_score(),
             'is_running': self.is_running(),
-            'ball_moving': self.is_ball_moving(),
-            'round_state': self.get_round_state()
+            'ball_moving': self.is_ball_moving()
         }
         return info
 
@@ -191,7 +185,7 @@ def player(type, conn, game):
                 command = conn.recv()
                 if command == "left" or command == "right":
                     game.move(type, command)
-                elif command == "shoot": #comando nuevo
+                elif command == "shoot": 
                     game.shoot_ball()
                 elif command == "goal":
                     game.end_round()
@@ -203,7 +197,7 @@ def player(type, conn, game):
                     game.set_score(GOALKEEPER)
                 elif command == "quit":
                     game.stop()
-            if game.is_ball_moving(): #mueve la pelota si se ha disparado
+            if game.is_ball_moving():
                 game.move_ball()
             conn.send(game.get_info())
 
@@ -217,10 +211,10 @@ def player(type, conn, game):
     finally:
         print(f"Game ended {game}")
     
-def main(ip_address):
+def main(ip_address, port):
     manager = Manager()
     try:
-        with Listener((ip_address, 11239), authkey=b'secret password') as listener:
+        with Listener((ip_address, port), authkey=b'secret password') as listener:
             numPlayers = 0
             players = [None, None]
             game = Game(manager)
@@ -240,5 +234,16 @@ def main(ip_address):
         traceback.print_exc()
         
 if __name__ == '__main__':
-    ip_address = sys.argv[1]
-    main(ip_address)
+    if len(sys.argv) == 1:
+        ip_address = "147.96.81.245"  #ip por defecto de simba
+        port = 11239                #puerto por defecto
+        print(f"Cargando {sys.argv[0]} {ip_address} {port}")
+    elif len(sys.argv) == 2:
+        ip_address = sys.argv[1]
+    elif len(sys.argv) == 3:
+        ip_address = sys.argv[1]
+        port = int(sys.argv[2])
+    else:
+        print(f"Uso: {sys.argv[0]} <ip_address> <port>")
+        exit(1)
+    main(ip_address, port)

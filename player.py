@@ -12,7 +12,7 @@ YELLOW = (255,255,0)
 GREEN = (0,255,0)
 X = 0
 Y = 1
-SIZE = (700, 700) #la imagen es de 700x700
+SIZE = (700, 700)
 
 FPS = 60
 
@@ -44,8 +44,8 @@ class Player():
     def __str__(self):
         pass
 
-#lo voy a hacer como subclase de Player
-class Ball(Player): # solo se mueve en linea recta
+
+class Ball(Player):
     def __init__(self):
         super().__init__(SHOOTER)
         self.angle = None
@@ -66,7 +66,6 @@ class Game():
         self.score = [0, 0]
         self.running = True
         self.ball_moving = False
-        self.round_state = True
 
     def get_player(self):
         return self.player
@@ -98,7 +97,6 @@ class Game():
         self.set_score(gameinfo['score'])
         self.running = gameinfo['is_running']
         self.ball_moving = gameinfo['ball_moving']
-        self.round_state = gameinfo['round_state']
 
     def stop(self):
         self.running = False
@@ -167,7 +165,6 @@ class Arrow(pygame.sprite.Sprite):
         self.update()
 
     def update(self):
-        # angle = self.angle - self.ball.get_angle()
         angle = self.ball.get_angle()
         self.image = pygame.transform.rotate(self.orig_image, 180*angle/math.pi - 90)
         self.rect = self.image.get_rect(center=self.ball.get_pos())
@@ -181,7 +178,7 @@ class Display():
         self.type = type
         self.square = Square(self.game.get_player())
         self.circle = Circle(self.game.get_ball())
-        self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])   # LINEAS DEL CAMPO
+        self.line_red = Line(400, 10, RED, [SIZE[0]/2, SIZE[1]/2 - 260])
         self.lineR = Line(10, 1220, WHITE, [0, SIZE[1]])
         self.lineL = Line(10, 1220, WHITE, [SIZE[0], SIZE[1]])
         self.lineUR = Line(300, 5, WHITE, [0, SIZE[1]/2 - 260])
@@ -203,7 +200,7 @@ class Display():
         self.screen = pygame.display.set_mode(SIZE)
         
         self.clock = pygame.time.Clock()
-        self.background = pygame.image.load('field_background2.jpeg')
+        self.background = pygame.image.load('field_background.jpeg')
         pygame.init()
         
     def collision(self, type, object):
@@ -217,12 +214,11 @@ class Display():
         events = []
 
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_LEFT] and self.game.round_state:
+        if pressed[pygame.K_LEFT]:
             events.append("left")
-        if pressed[pygame.K_RIGHT] and self.game.round_state:
+        if pressed[pygame.K_RIGHT]:
             events.append("right")
-        if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving and self.game.round_state:
-            # self.arrow.kill()       # Hace desaparecer la flecha al disparar
+        if pressed[pygame.K_SPACE] and type == SHOOTER and not self.game.ball_moving:
             events.append("shoot")
 
         for event in pygame.event.get():
@@ -241,10 +237,10 @@ class Display():
         self.all_sprites.update()
         self.screen.blit(self.background, (0, 0))
         score = self.game.get_score()
-        font = pygame.font.Font(None, 74)
-        text = font.render(f"{score[GOALKEEPER]}", 1, WHITE)
-        self.screen.blit(text, (250, 10))
-        text = font.render(f"{score[SHOOTER]}", 1, WHITE)
+        font = pygame.font.Font(None, 50)
+        text = font.render(f"GOALKEEPER:{score[GOALKEEPER]}", 1, WHITE)
+        self.screen.blit(text, (90, 10))
+        text = font.render(f"SHOOTER:{score[SHOOTER]}", 1, WHITE)
         self.screen.blit(text, (SIZE[X]-250, 10))
         self.all_sprites.draw(self.screen)
 
@@ -267,9 +263,9 @@ class Display():
     def quit():
         pygame.quit()
 
-def main(ip_address):
+def main(ip_address, port):
     try:
-        with Client((ip_address, 11239), authkey=b'secret password') as conn:
+        with Client((ip_address, port), authkey=b'secret password') as conn:
             game = Game()
             type, gameinfo = conn.recv()
             print(f"I am playing {TYPE[type]}")
@@ -292,8 +288,17 @@ def main(ip_address):
         pygame.quit()
 
 
-if __name__=="__main__":
-    ip_address = "127.0.0.1"
-    if len(sys.argv)>1:
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        ip_address = "147.96.81.245"  #ip por defecto de simba
+        port = 11239                #puerto por defecto
+        print(f"Cargando {sys.argv[0]} {ip_address} {port}")
+    elif len(sys.argv) == 2:
         ip_address = sys.argv[1]
-    main(ip_address)
+    elif len(sys.argv) == 3:
+        ip_address = sys.argv[1]
+        port = int(sys.argv[2])
+    else:
+        print(f"Uso: {sys.argv[0]} <ip_address> <port>")
+        exit(1)
+    main(ip_address, port)
