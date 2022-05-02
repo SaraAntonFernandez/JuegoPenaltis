@@ -1,31 +1,7 @@
 from multiprocessing.connection import Client
-import traceback
 import pygame
-import sys, os
-import math
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255,255,0)
-GREEN = (0,255,0)
-X = 0
-Y = 1
-SIZE = (1000, 1000)
-
-FPS = 60
-
-PLAYER_COLOR = [BLUE, YELLOW]
-PLAYER_HEIGHT = 50
-PLAYER_WIDTH = 50
-
-BALL_SIZE = 40
-BALL_COLOR = YELLOW
-
-GOALKEEPER = 0
-SHOOTER = 1
-TYPE = ['goalkeeper', 'shooter']
+from config import *
 
 class Player():
     def __init__(self, type):
@@ -109,11 +85,7 @@ class Square(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
         self.image.fill(BLACK)
-
-        # self.image.set_colorkey(BLACK)
         self.player = player
-        color = PLAYER_COLOR[self.player.get_type()]
-        # pygame.draw.rect(self.image, color, [0, 0, PLAYER_WIDTH, PLAYER_HEIGHT])
         self.image = pygame.transform.scale(pygame.image.load('gloves-square.png'), (PLAYER_WIDTH, PLAYER_HEIGHT))
 
         self.rect = self.image.get_rect()
@@ -139,12 +111,8 @@ class Line(pygame.sprite.Sprite):
 class Circle(pygame.sprite.Sprite):
     def __init__(self, ball):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('football-ball-scaled.png'), (BALL_SIZE, BALL_SIZE))
-        # self.image = pygame.Surface([BALL_SIZE, BALL_SIZE])
-        # self.image.fill(BLACK)
-        # self.image.set_colorkey(BLACK)
+        self.image = pygame.transform.scale(pygame.image.load('football-ball.png'), (BALL_SIZE, BALL_SIZE))
         self.ball = ball
-        # pygame.draw.circle(self.image, BALL_COLOR, [BALL_SIZE//2, BALL_SIZE//2], BALL_SIZE//2)
         self.rect = self.image.get_rect()
         self.update()
 
@@ -184,7 +152,6 @@ class Display():
         self.circle = Circle(self.game.get_ball())
         self.line_red = Line(3*SIZE[0]/5, 10, RED, [SIZE[0]/2, SIZE[1]/5])
         self.end_line = Line(SIZE[0], 5, WHITE, [SIZE[0]/2, SIZE[1]/5 - 10])
-        # self.lineUL = Line(SIZE[0]/5, 5, WHITE, [9*SIZE[0]/10, SIZE[1]/5])
 
         self.all_sprites = pygame.sprite.Group()
         self.fixed_sprites = pygame.sprite.Group()
@@ -193,7 +160,6 @@ class Display():
         self.all_sprites.add(self.square)
         self.all_sprites.add(self.circle)
         self.fixed_sprites.add(self.end_line)
-        # self.fixed_sprites.add(self.lineUL)
         self.fixed_sprites.add(self.line_red)
 
         self.add_arrow()
@@ -280,7 +246,7 @@ def main(ip_address, port):
         with Client((ip_address, port), authkey=b'secret password') as conn:
             game = Game()
             type, gameinfo = conn.recv()
-            print(f"I am playing {TYPE[type]}")
+            print(f"I am playing {TYPES[type]}")
             game.update(gameinfo)
             display = Display(game, type)
             while game.running:

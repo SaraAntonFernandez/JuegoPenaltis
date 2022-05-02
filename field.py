@@ -1,18 +1,7 @@
 from multiprocessing.connection import Listener
 from multiprocessing import Process, Manager, Value, Lock
-import traceback
-import sys
-import math
 
-GOALKEEPER = 0
-SHOOTER = 1
-BALL_SIZE = 40
-SIDESSTR = ["goalkeeper", "shooter"]
-SIZE = (1000, 1000)
-
-ALPHA = 1/30
-DELTA = 5
-SPEED = 6
+from config import *
 
 class Player():
     def __init__(self):
@@ -176,7 +165,7 @@ class Game():
         
 def player(type, conn, game):
     try:
-        print(f"starting player {SIDESSTR[type]}: {game.get_info()}")
+        print(f"starting player {TYPES[type]}: {game.get_info()}")
         conn.send((type, game.get_info()))
         while game.is_running():
             command = ""
